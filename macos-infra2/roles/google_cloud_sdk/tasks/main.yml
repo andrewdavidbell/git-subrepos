@@ -1,0 +1,35 @@
+---
+# <ansible_base_dir>/roles/google_cloud_sdk/tasks/main.yml
+
+- name: Install Google Cloud SDK
+  homebrew_cask:
+    name: google-cloud-sdk
+    state: "{{ google_cloud_sdk_state }}"
+
+- name: Ensure Google Cloud SDK is sourced from {{ ansible_user_dir }}/.zshrc
+  lineinfile:
+    path: "{{ ansible_user_dir }}/.zshrc"
+    regexp: '^  gcloud'
+    insertafter: '# ANSIBLE MANAGED: Antigen'
+    line: '  gcloud'
+
+# Note the gcloud plugin above fails to source the path and completion scripts
+# so do it manually
+- name: Ensure that the path is configured
+  lineinfile:
+    path: "{{ ansible_user_dir }}/.zshrc"
+    insertafter: '# Additional configuration'
+    line: 'source "${CLOUDSDK_HOME}/path.zsh.inc"'
+
+- name: Ensure that the completion is configured
+  lineinfile:
+    path: "{{ ansible_user_dir }}/.zshrc"
+    insertafter: '# Additional configuration'
+    line: 'source "${CLOUDSDK_HOME}/completion.zsh.inc"'
+
+- name: Ensure that the gke-gcloud-auth-plugin is used
+  lineinfile:
+    path: "{{ ansible_user_dir }}/.zshrc"
+    insertafter: '# Additional configuration'
+    line: 'export USE_GKE_GCLOUD_AUTH_PLUGIN=True'
+

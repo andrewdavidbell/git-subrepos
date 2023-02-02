@@ -1,0 +1,31 @@
+---
+# <ansible_base_dir>/roles/nvm/tasks/main.yml
+
+- name: Install nodejs version manager
+  homebrew:
+    name: nvm
+    state: present
+
+- name: Make {{ ansible_user_dir }}/.nvm
+  file:
+    path: "{{ ansible_user_dir }}/.nvm"
+    state: directory
+    owner: "{{ ansible_user_id }}"
+    group: staff
+    mode: 0755
+
+# Antigen nvm plugin expects nvm.sh in NVM_DIR so install via scripts
+- name: Ensure nvm.sh is sourced from {{ ansible_user_dir }}/.zshrc
+  blockinfile:
+    dest: "{{ ansible_user_dir }}/.zshrc"
+    block: |
+      export NVM_DIR="$HOME/.nvm"
+      [[ -e "${HOMEBREW_PREFIX}/opt/nvm/nvm.sh" ]] && source "${HOMEBREW_PREFIX}/opt/nvm/nvm.sh"
+    marker: '# {mark} ANSIBLE MANAGED BLOCK: nvm'
+
+- name: Install npm aliases for zsh
+  lineinfile:
+    path: "{{ ansible_user_dir }}/.zshrc"
+    regexp: '^  npm'
+    insertafter: '# ANSIBLE MANAGED: Antigen'
+    line: '  npm'

@@ -1,0 +1,3 @@
+# Personal profile for Bash(1) interactive login shells
+
+[ -r ~/.bashrc ] && . ~/.bashrc

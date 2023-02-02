@@ -1,0 +1,79 @@
+---
+# <ansible_base_dir>/roles/git/tasks/main.yml
+
+- name: Install git
+  homebrew:
+    name: git
+    state: present
+
+- name: Set name in global git configuration
+  git_config:
+    name: user.name
+    scope: global
+    value: Andrew Bell
+
+- name: Configure an alias to the github email in global git configuration
+  git_config:
+    name: alias.home
+    scope: global
+    value: config user.email "{{ github_email }}"
+
+- name: Set page in global git configuration
+  git_config:
+    name: core.pager
+    scope: global
+    value: less -r
+
+# https://spin.atomicobject.com/2020/05/05/git-configurations-default/
+- name: Configure Pull with Rebase
+  git_config:
+    name: pull.rebase
+    scope: global
+    value: "true"
+
+- name: Configure Prune on Fetch
+  git_config:
+    name: fetch.prune
+    scope: global
+    value: "true"
+
+- name: Differentiate Moved Lines
+  git_config:
+    name: diff.colorMoved
+    scope: global
+    value: zebra
+
+- name: Configure autoStash
+  git_config:
+    name: rebase.autoStash
+    scope: global
+    value: "true"
+
+- name: Configure autoSquash
+  git_config:
+    name: rebase.autoSquash
+    scope: global
+    value: "true"
+
+- name: Ensure .config/git directory exists
+  file:
+    path: "{{ ansible_user_dir }}/.config/git"
+    state: directory
+    owner: "{{ ansible_user_id }}"
+    group: staff
+    mode: 0755
+
+- name: Install ignore in global git configuration
+  copy:
+    src: ignore
+    dest: "{{ ansible_user_dir }}/.config/git/ignore"
+    owner: "{{ ansible_user_id }}"
+    group: staff
+    mode: 0644
+
+- name: Install git aliases for "{{ ansible_user_dir }}/.zshrc"
+  lineinfile:
+    path: "{{ ansible_user_dir }}/.zshrc"
+    regexp: '^  git'
+    insertafter: '# ANSIBLE MANAGED: Antigen'
+    line: '  git'

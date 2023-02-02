@@ -1,0 +1,5 @@
+---
+# <ansible_base_dir>/roles/visual_studio_code/vars/main.yml
+
+# visual_studio_code_extensions:
+  # - { name: '', version: '' }

@@ -1,0 +1,38 @@
+---
+# file: roles/synology/tasks/main.yml
+
+- name: Install Tap for Synology applications
+  homebrew_tap:
+    name: homebrew/cask-drivers
+    state: present
+
+- name: Install Synology Drive
+  homebrew_cask:
+    name: synology-drive
+    state: present
+
+- name: Check if Synology Note Station is installed
+  stat:
+    path: "{{ synology.note_station_installed_app }}"
+  register: note_station
+
+- name: Ensure User's Application directory exists
+  file:
+    path: "{{ ansible_user_dir }}/Applications"
+    state: directory
+    owner: "{{ ansible_user_id }}"
+    group: staff
+    mode: 0755
+  when: note_station.stat.exists == false
+
+- name: Attach Synology Note Station Disk Image
+  command: hdiutil attach "{{ synology.note_station_disk_image }}"
+  when: note_station.stat.exists == false
+
+- name: Install Synology Note Station
+  command: cp -a "{{ synology.note_station_mounted_app }}" "{{ synology.note_station_installed_app }}"
+  when: note_station.stat.exists == false
+
+- name: Detach Synology Note Station Disk Image
+  command: hdiutil detach "{{ synology.note_station_mount_point }}"
+  when: note_station.stat.exists == false

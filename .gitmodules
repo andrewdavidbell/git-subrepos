@@ -1,0 +1,3 @@
+[submodule "macos-infra"]
+	path = macos-infra
+	url = git@github.com:andrewdavidbell/macos-infra.git
